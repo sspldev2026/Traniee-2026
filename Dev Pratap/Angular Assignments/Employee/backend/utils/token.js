@@ -17,10 +17,10 @@ const generateAccessToken = (user) => {
 };
 
 const generateRefreshToken = (user) => {
+    console.log(user.userId)
     return jwt.sign(
         {
-            
-            userId: user.UserID
+            userId: user.userId
         },
         process.env.REFRESH_TOKEN_SECRET,
         {

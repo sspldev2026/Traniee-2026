@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { ShareServices } from '../../services/share-services';
 import { AdminService } from '../../../features/admin/services/admin-service';
+import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
+
 
 interface UserProfile {
   name: string;
@@ -48,6 +50,7 @@ export class Home implements OnInit {
   shareService = inject(ShareServices)
   router = inject(Router)
   adminService = inject(AdminService)
+  snakebar = inject(MatSnackBar)
 
   currentUser: UserProfile = {
     name: 'Alex Mercer',
@@ -56,8 +59,11 @@ export class Home implements OnInit {
   };
 
   logOut() {
-    alert("helo")
-    this.shareService.logout(localStorage.getItem("refreshToken")!)
+    this.shareService.logout(localStorage.getItem("refreshToken")!).subscribe(res => {
+      this.snakebar.open(res.message,"Close", {
+        duration: 3000
+      });
+    })
     localStorage.clear()
     this.shareService.userDetails.set(null)
     this.router.navigate(["/auth/login"])
@@ -69,6 +75,7 @@ export class Home implements OnInit {
   ngOnInit(): void {
     this.setGreeting();
     this.shareService.fetchTodos();
+    console.log(this.shareService.userDetails())
   }
 
   private setGreeting(): void {
@@ -81,14 +88,14 @@ export class Home implements OnInit {
   isLoading = signal<boolean>(true);
 
 
-  
-  markAs(task: TodoTask,status:'Pending' | 'In Progress' | 'Completed'): void {
+
+  markAs(task: TodoTask, status: 'Pending' | 'In Progress' | 'Completed'): void {
     const updatedPayload: TodoTask = {
       ...task,
       status,
       updatedDate: new Date().toISOString()
     };
-    this.adminService.updateTask(updatedPayload).subscribe(res=>{
+    this.adminService.updateTask(updatedPayload).subscribe(res => {
       this.shareService.fetchTodos()
     })
   }

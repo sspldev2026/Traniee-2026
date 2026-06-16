@@ -80,12 +80,14 @@ export class ShareServices {
         this.getNewAccessToken(refreshToken).subscribe({
           next: (res) => {
             localStorage.setItem('accessToken', res.accessToken);
+            localStorage.setItem('refreshToken', res.refreshToken);
 
             const newPayload = JSON.parse(
               atob(res.accessToken.split('.')[1])
             );
 
             this.userDetails.set(newPayload);
+            this.fetchTodos()
           },
           error: (err) => {
             console.error('Refresh token failed', err);
@@ -118,11 +120,11 @@ export class ShareServices {
     { refreshToken }
   ).pipe(
     tap(() => {
-      this.clearSessionAndRedirect();
+      localStorage.clear()
     }),
     catchError((error) => {
       console.error('Backend logout failed, clearing local session anyway', error);
-      this.clearSessionAndRedirect();
+      localStorage.clear()
       return of(null); 
     })
   );

@@ -16,6 +16,6 @@ export class App implements OnInit{
   ngOnInit(){
     const token = signal(localStorage.getItem("accessToken"))
     this.shareService.assignUser(token())
-    console.log(this.shareService.userDetails())
+    console.log(localStorage.getItem("refreshToken"))
   }
 }

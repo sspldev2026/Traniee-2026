@@ -20,11 +20,11 @@ const registerUser = async (req, res) => {
       message: 'Validation failed: fullName, email, and password fields are strictly required.'
     });
   }
-  console.log(fullName,email,password,roleName)
+  console.log(fullName, email, password, roleName)
 
   try {
     const result = await sequelize.transaction(async (t) => {
-      
+
       const role = await Roles.findOne({ where: { roleName }, transaction: t });
       if (!role) {
         throw new Error(`ROLE_NOT_FOUND:${roleName}`);
@@ -106,14 +106,11 @@ const loginUser = async (req, res) => {
 
   try {
     const result = await authService.loginUser(email, password);
-
-   
-
     return res.status(200).json({
       success: true,
       message: 'Authentication validated successfully.',
       accessToken: result.accessToken,
-      refreshToken:result.refreshToken,
+      refreshToken: result.refreshToken,
       user: result.user
     });
 
@@ -147,9 +144,10 @@ const refreshTokenHandler = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: 'Tokens rotated successfully.',
-      ...tokens 
+      ...tokens
     });
   } catch (error) {
+    console.log(error)
     if (['INVALID_TOKEN', 'TOKEN_NOT_FOUND', 'USER_NOT_FOUND', 'TOKEN_EXPIRED'].includes(error.message)) {
       return res.status(401).json({ success: false, message: 'Session expired or invalid. Please log in again.' });
     }
@@ -160,6 +158,7 @@ const refreshTokenHandler = async (req, res) => {
 
 const logoutUserHandler = async (req, res) => {
   const { refreshToken } = req.body;
+  console.log(refreshToken)
 
   if (!refreshToken) {
     return res.status(400).json({
@@ -169,7 +168,7 @@ const logoutUserHandler = async (req, res) => {
   }
 
   try {
-    await authService.deleleRefreshToken(refreshToken);
+    await authService.logOutRefreshToken(refreshToken);
 
     return res.status(200).json({
       success: true,
@@ -194,8 +193,8 @@ const logoutUserHandler = async (req, res) => {
 
 
 module.exports = {
-    registerUser,
-    loginUser,
-    refreshTokenHandler,
-    logoutUserHandler
+  registerUser,
+  loginUser,
+  refreshTokenHandler,
+  logoutUserHandler
 }

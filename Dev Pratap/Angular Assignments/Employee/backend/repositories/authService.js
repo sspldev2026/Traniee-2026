@@ -2,11 +2,8 @@ const bcrypt = require('bcrypt');
 const { sequelize } = require('../connection'); 
 const { User, Role, UserRole,RefreshToken } = require('../module/index');
 const { generateAccessToken, generateRefreshToken } = require('../utils/token');
-
-async function login(email, password) {
-  const user = await User.findOne({ where: { email } })
-  return user
-}
+const { refreshTokenHandler } = require('../controllers/authControllers');
+const jwt = require("jsonwebtoken")
 
 
 const registerUser = async (userData) => {
@@ -103,16 +100,22 @@ const rotateTokens = async (incomingRefreshToken) => {
     let decoded;
     try {
       decoded = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET);
+      
     } catch (err) {
+      console.log(err)
       const error = new Error('INVALID_TOKEN');
       error.statusCode = 401;
       throw error;
     }
 
+    console.log(incomingRefreshToken,decoded.userId)
+
     const storedToken = await RefreshToken.findOne({
       where: { token: incomingRefreshToken, userId: decoded.userId },
       transaction: t
     });
+
+    
 
     if (!storedToken) {
       const error = new Error('TOKEN_NOT_FOUND');
@@ -144,9 +147,9 @@ const rotateTokens = async (incomingRefreshToken) => {
     const roleName = user.Roles && user.Roles.length > 0 ? user.Roles[0].roleName : 'Employee';
 
     const newAccessToken = jwt.sign(
-      { userId: user.userId, role: roleName },
+      { userId: user.userId, role: roleName, fullName:user.FullName },
       process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: '15m' }
+      { expiresIn: '30m' }
     );
 
     const newRefreshTokenString = jwt.sign(
@@ -171,16 +174,13 @@ const rotateTokens = async (incomingRefreshToken) => {
   });
 };
 
-const deleleRefreshToken = async (tokenString) => {
+const logOutRefreshToken = async (tokenString) => {
   const tokenRecord = await RefreshToken.findOne({
     where: { token: tokenString }
   });
 
-
   if (!tokenRecord) {
-    const error = new Error('TOKEN_NOT_FOUND');
-    error.statusCode = 404;
-    throw error;
+    return true; 
   }
 
   await tokenRecord.destroy();
@@ -194,6 +194,6 @@ module.exports = {
   loginUser,
   registerUser,
   rotateTokens,
-  deleleRefreshToken
+  logOutRefreshToken
 }
 

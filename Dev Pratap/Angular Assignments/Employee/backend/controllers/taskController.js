@@ -15,8 +15,6 @@ const getUserTasksHandler = async (req, res) => {
       message: 'Validation failed: The userId route parameter must be a valid number.'
     });
   }
-
-
   const filterType = type === 'createdBy' ? 'createdBy' : 'assignedTo';
 
   try {
