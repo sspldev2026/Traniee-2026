@@ -1,22 +1,56 @@
-# Dependencies
-node_modules/
+# ==========================
+# Backend
+# ==========================
+backend/node_modules/
+backend/.env
+backend/.env.*
+backend/logs/
+backend/*.log
 
-# Environment variables
-.env
-.env.*
+# Build folders
+backend/dist/
+backend/build/
 
-# Build files
-dist/
-build/
+# ==========================
+# Frontend (Angular)
+# ==========================
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+frontend/.cache/
 
-# Logs
-logs
-*.log
+# Environment files
+frontend/src/environments/environment.ts
+frontend/src/environments/environment.*.ts
 
-# OS files
+# ==========================
+# Package Manager
+# ==========================
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ==========================
+# OS Files
+# ==========================
 .DS_Store
 Thumbs.db
 
-# IDE files
+# ==========================
+# IDE Files
+# ==========================
 .vscode/
 .idea/
+
+# ==========================
+# Coverage / Testing
+# ==========================
+coverage/
+
+# ==========================
+# Miscellaneous
+# ==========================
+*.tmp
+*.temp
+*.swp
