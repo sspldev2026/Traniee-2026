@@ -10,6 +10,8 @@ import { EditTask } from './features/admin/components/edit-task/edit-task';
 import { TaskDetails } from './features/admin/components/task-details/task-details';
 import { CreateTask } from './features/admin/components/create-task/create-task';
 import { EmployeeList } from './features/admin/components/employee-list/employee-list';
+import { createleaveRequest } from './features/leaveRequests/components/create-leave-Request/create-task';
+import { RequestListAdmin } from './features/admin/components/request-list-admin/request-list-admin';
 
 export const routes: Routes = [
     { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
@@ -17,6 +19,11 @@ export const routes: Routes = [
         path:"dashboard",
         canActivate:[authGuardsGuard],
         component:Home
+    },
+    {
+        path:"Leave-request",
+        canActivate:[authGuardsGuard],
+        component:createleaveRequest
     },
     {
         path: "auth",
@@ -39,6 +46,7 @@ export const routes: Routes = [
             { path: 'Employees', component: EmployeeList },
             { path: 'task/:id', component: TaskDetails },
             { path: 'task/edit/:id', component: EditTask },
+            { path: 'request/leaves', component: RequestListAdmin },
         ]
     },
     {

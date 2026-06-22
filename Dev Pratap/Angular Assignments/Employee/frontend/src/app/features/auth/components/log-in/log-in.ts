@@ -39,6 +39,7 @@ export class LogIn {
           localStorage.setItem('accessToken', res.accessToken);
           localStorage.setItem('refreshToken', res.refreshToken);
           this.shareService.assignUser(res.accessToken)
+          this.shareService.updateAttSignal()
           this.router.navigate(["/dashboard"])
         },
 

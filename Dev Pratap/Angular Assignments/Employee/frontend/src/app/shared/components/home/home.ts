@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { ShareServices } from '../../services/share-services';
 import { AdminService } from '../../../features/admin/services/admin-service';
-import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTableModule } from '@angular/material/table';
 
 
 interface UserProfile {
@@ -38,10 +39,12 @@ export interface UserSummary {
   email: string;
 }
 
+
+
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule,MatTableModule],
   templateUrl: './home.html',
   styleUrls: ['./home.css']
 })
@@ -68,6 +71,8 @@ export class Home implements OnInit {
     this.shareService.userDetails.set(null)
     this.router.navigate(["/auth/login"])
   }
+  displayedColumns: string[] = ['Id','name', 'weight'];
+  displayedColumns2: string[] = ['date','dayName','Present', 'Absent','OnLeave'];
 
   currentTimeGreeting: string = 'Good Day';
   stats: StatCard[] = [];
@@ -76,6 +81,9 @@ export class Home implements OnInit {
     this.setGreeting();
     this.shareService.fetchTodos();
     console.log(this.shareService.userDetails())
+    if(this.shareService.userDetails()?.role==="Admin" || this.shareService.userDetails()?.role==="Manager"){
+      this.shareService.getAttendencByStatus()
+    }
   }
 
   private setGreeting(): void {
@@ -99,4 +107,5 @@ export class Home implements OnInit {
       this.shareService.fetchTodos()
     })
   }
+
 }

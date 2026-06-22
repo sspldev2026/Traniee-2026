@@ -1,0 +1,74 @@
+<div class="task-page">
+
+    <header class="page-header">
+        <div>
+            <h1>Leave Request Registry</h1>
+            <p class="subtitle">Wellcome {{shareService.userDetails()?.role}}</p>
+        </div>
+    </header>
+
+    <div class="registry-wrapper">
+        <table class="registry-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Employee</th>
+                    <th>Reason</th>
+                    <th>Dates (From / To)</th>
+                    @if(shareService.userDetails()?.role==="Admin"){<th>Manager</th>}
+                    <th>Status </th>
+                    @if(shareService.userDetails()?.role==="Manager"){<th>Action</th>}
+                </tr>
+            </thead>
+            <tbody>
+                @for (task of adminService.leaveRequests(); track task.LeaveRequestsID) {
+                <tr>
+                    <td class="id-cell">#{{ task.LeaveRequestsID }}</td>
+                    <td class="info-cell">
+                        <span class="task-title">{{ task.Employee.FullName }}</span>
+                        <span class="task-title">{{ task.Employee.Email }}</span>
+                    </td>
+                    <td class="info-cell">
+                        <span class="task-title">{{ task.reason }}</span>
+                    </td>
+                    <td>
+                        <div class="date-stack">
+                            <span class="due-tag"> {{ task.startDate| date:'mediumDate' }}</span>
+                            <span class="due-tag">{{ task.endDate| date:'mediumDate' }}</span>
+                        </div>
+                    </td>
+                    @if(shareService.userDetails()?.role==="Admin"){
+                    <td>
+                        <div class="assignment-stack">
+                            <span>{{ task!.Manager!.FullName }}</span>
+                        </div>
+                    </td>
+                    }
+                    <td>
+                        <span class="status-badge {{ task.Status.toLowerCase() }}">
+                            {{ task.Status }}
+                        </span>
+                    </td>
+                    @if(shareService.userDetails()?.role === "Manager"){
+                    <td class="text-right actions-cell">
+                        <button class="nav-btn watch" title="Accept request"
+                            (click)="onUpdate(task.LeaveRequestsID,'Approved')">Accept</button>
+                        <button class="nav-btn edit" title="Reject request"
+                            (click)="onUpdate(task.LeaveRequestsID,'Reject')">Reject</button>
+                        <button class="nav-btn delete" title="Delete request"
+                            (click)="this.adminService.deleteLeaveReq(task.LeaveRequestsID)">Delete</button>
+                    </td>
+                    }
+
+                </tr>
+                } @empty {
+                <tr>
+                    <td colspan="6" class="empty-state">
+                        No task vectors discovered within current systemic memory slots.
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

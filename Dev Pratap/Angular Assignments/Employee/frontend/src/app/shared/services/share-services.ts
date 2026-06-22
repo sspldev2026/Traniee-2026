@@ -6,6 +6,8 @@ import { env } from '../../Environment';
 import { TodoTask } from '../components/home/home';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
+import { ImanagerLeave } from '../../features/leaveRequests/services/leave-service';
+import { servicesVersion } from 'typescript';
 
 export interface UserInfo {
   userId: number;
@@ -34,6 +36,32 @@ export interface GetTasksResponse {
   data: TodoTask[];
 }
 
+export interface attendencEmp {
+  AttendanceID: number;
+  Status: string;
+  date: string;
+  userId: number;
+  Employee:UserInfo
+}
+
+export interface WeekRange {
+  start: string;
+  end: string;
+}
+
+export interface AttendanceSummary {
+  date: string;
+  dayName: string;
+  Present: number;
+  Absent: number;
+  OnLeave: number;
+}
+
+export interface WeeklyAttendanceResponse {
+  weekRange: WeekRange;
+  summary: AttendanceSummary[];
+}
+
 
 
 @Injectable({
@@ -48,16 +76,19 @@ export class ShareServices {
   todos = signal<TodoTask[]>([]);
   snackBar = inject(MatSnackBar)
   router = inject(Router)
+  attendenc = signal<string>("Absent")
 
   fetchTodos(): void {
-    if(this.userDetails()){
+    if (this.userDetails()) {
       this.getMyTask().subscribe({
-      next: (res) => {
-        this.todos.set(res.data);
-      }
-    });
+        next: (res) => {
+          this.todos.set(res.data);
+        }
+      });
     }
   }
+
+
 
 
   assignUser(token: string | null): void {
@@ -115,26 +146,22 @@ export class ShareServices {
   }
 
   logout(refreshToken: string): Observable<any> {
-  return this.http.post<{ message: string, success: boolean }>(
-    `${env.URL}auth/logout`, 
-    { refreshToken }
-  ).pipe(
-    tap(() => {
-      localStorage.clear()
-    }),
-    catchError((error) => {
-      console.error('Backend logout failed, clearing local session anyway', error);
-      localStorage.clear()
-      return of(null); 
-    })
-  );
-}
+    return this.http.post<{ message: string, success: boolean }>(
+      `${env.URL}auth/logout`,
+      { refreshToken }
+    ).pipe(
+      tap(() => {
+        localStorage.clear()
+        this.attendenc.set("no")
+      }),
+      catchError((error) => {
+        console.error('Backend logout failed, clearing local session anyway', error);
+        localStorage.clear()
+        return of(null);
+      })
+    );
+  }
 
-private clearSessionAndRedirect(): void {
-  localStorage.clear();
-  this.userDetails.set(null); // Clear your Signals / State
-  this.router.navigate(['auth/login']);
-}
 
   snakeBarFunc(message: string) {
     return this.snackBar.open(
@@ -144,5 +171,45 @@ private clearSessionAndRedirect(): void {
         duration: 3000
       }
     );
+  }
+
+  // --------- attendance 
+
+  updateAttendence() {
+    this.http.patch(`${env.URL}attendence/${this.userDetails()?.userId}`, { status: "Present" }).subscribe({
+      next: () => {
+        this.snakeBarFunc("Marked you Present")
+        this.updateAttSignal()
+        if(this.userDetails()?.role === "Admin"||this.userDetails()?.role === "Manager"){
+          this.getAttendencByStatus()
+        }
+      },
+      error: () => this.snakeBarFunc("Some Think went Wrong")
+    })
+  }
+
+  updateAttSignal() {
+    this.http.get<{ AttendanceID: string, Status: string, userId: number, date: string }>(`${env.URL}attendence/${this.userDetails()?.userId}`).subscribe(res => this.attendenc.set(res.Status))
+  }
+
+
+  // attendenc count
+
+  AbsentEmp = signal<attendencEmp[]>([])
+  PresentEmp = signal<attendencEmp[]>([])
+  OnleaveEmp = signal<attendencEmp[]>([])
+  AllEmpStatus = signal<attendencEmp[]>([])
+  weekStatus = signal<AttendanceSummary[] >([])
+
+  getAttendencByStatus() {
+    this.http.get<attendencEmp[]>(`${env.URL}attendence/Atendace/Absent`).subscribe(res => this.AbsentEmp.set(res))
+    this.http.get<attendencEmp[]>(`${env.URL}attendence/Atendace/Present`).subscribe(res => this.PresentEmp.set(res))
+    this.http.get<attendencEmp[]>(`${env.URL}attendence/Atendace/OnLeave`).subscribe(res => this.OnleaveEmp.set(res))
+    this.http.get<attendencEmp[]>(`${env.URL}attendence/Atendace/All`).subscribe(res => this.AllEmpStatus.set(res))
+     this.http.get<WeeklyAttendanceResponse>(`${env.URL}attendence/Details/week`).subscribe(res => this.weekStatus.set(res.summary))
+  }
+
+  testing(){
+   
   }
 }

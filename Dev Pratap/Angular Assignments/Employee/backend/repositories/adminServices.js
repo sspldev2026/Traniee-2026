@@ -1,5 +1,5 @@
 const { sequelize } = require('../connection.js');
-const { User, Role, UserRole,RefreshToken ,Task} = require('../module/index'); // Import from your central index
+const { User, Role, UserRole,RefreshToken ,Task, LeaveRequests} = require('../module/index'); // Import from your central index
 
 const getAllUsersWithRoles = async () => {
   try {
@@ -152,26 +152,49 @@ const hardDeleteEmployee = async (userId) => {
 };
 
 
-
-
-async function getAllMan() {
-    const users = await User.findAll({where:{Role:"Manager"}})
-    return users
+async function getAllLeaveRequestsForAdmin() {
+  try {
+    const records = await LeaveRequests.findAll({
+      include: [
+        { model: User, as: 'Employee', attributes: ['FullName', 'Email'] },
+        { model: User , as: 'Manager', attributes: ['FullName'] }
+      ],
+      order: [['CreatedAt', 'DESC']] // Newest requests first
+    });
+    return records;
+  } catch (error) {
+    console.error("Admin Service Error - Fetching all leaves failed:", error);
+    throw error;
+  }
 }
 
-
-
-
+async function getLeaveRequestsForManager(managerId) {
+  try {
+    const records = await LeaveRequests.findAll({
+      where: {
+        managerId: managerId 
+      },
+      include: [
+        { model: User, as: 'Employee', attributes: ['FullName', 'Email'] }
+      ],
+      order: [['CreatedAt', 'DESC']]
+    });
+    return records;
+  } catch (error) {
+    console.error(`Manager Service Error - Fetching leaves for manager ${managerId} failed:`, error);
+    throw error;
+  }
+}
 
 
 
 module.exports = {
   updateUserFields,
-  
   hardDeleteEmployee,
-
   getAllUsersWithRoles,
   getAllEmp,
-  getAllMan,
+  getAllLeaveRequestsForAdmin,
+  getLeaveRequestsForManager
+  
 
 };

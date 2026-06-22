@@ -24,7 +24,7 @@
       <tbody>
         @for (employee of adminService.Employees(); track employee.userId) {
         <tr>
-          <td class="emp-name">{{ employee.FullName }}</td>
+          <td class="emp-name">{{ employee.FullName }} {{employee.userId}}</td>
           <td class="emp-email">{{ employee.email }}</td>
           <td><span class="dept-label">{{ employee.isActive }}</span></td>
           <td>

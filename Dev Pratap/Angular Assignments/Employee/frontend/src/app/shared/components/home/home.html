@@ -7,10 +7,18 @@
             <p>Dashboard &mdash; Logged in as <span class="role-badge">{{
                     shareService.userDetails()?.role
                     }}</span></p>
+
         </div>
-        <div class="banner-meta" (click)="logOut()">
-            <span class="dept-tag"> logOut</span>
+        <div class="banner-meta">
+            @if(shareService.attendenc()!="Present"){
+            <span class="dept-tag" (click)="shareService.updateAttendence()">Mark Me Present</span>|
+            }
+
+            <span class="dept-tag" routerLink="/Leave-request">Leave Request</span>|
+            <span class="dept-tag" (click)="logOut()"> logOut</span>
+
         </div>
+
     </header>
 
     <!-- Contextual Notification Box based on Role -->
@@ -28,15 +36,17 @@
                     <span class="btn-icon">🗓️</span> Create New Task
                 </button>
                 @if(shareService.userDetails()?.role == "Admin"){
-                    <button class="action-btn" routerLink="/admin/Employees">
+                <button class="action-btn" routerLink="/admin/Employees">
                     <span class="btn-icon">⚙️</span> Employees
                 </button>
                 }
-                
-                <button class="action-btn technical-btn"
-                    *ngIf="currentUser.role === 'Admin' || currentUser.role === 'Manager'">
-                    <span class="btn-icon">📊</span> Export System Metrics
+                <button class="action-btn technical-btn" routerLink="/admin/request/leaves">
+                    <span class="btn-icon">📊</span>leave requests
                 </button>
+
+
+
+
             </div>
         </section>
         }
@@ -46,6 +56,7 @@
 
         <section class="panel">
             <h3>My Tasks</h3>
+
             <div class="activity-timeline">
                 <div class="todo-list-deck">
                     @for (item of shareService.todos(); track item.taskId) {
@@ -72,17 +83,17 @@
                         <div class="todo-actions">
                             @if (item.status !== 'Completed') {
                             <button class="btn-complete-trigger" (click)="markAs(item,'Completed')">
-                                 Mark Done
+                                Mark Done
                             </button>
                             }@if(item.status !== 'In Progress') {
                             <button class="btn-complete-trigger" (click)="markAs(item,'In Progress')">
-                                 Mark In-Progress
+                                Mark In-Progress
                             </button>
                             } @if(item.status !== 'Pending') {
                             <button class="btn-complete-trigger" (click)="markAs(item,'Pending')">
-                                 Mark Pending
+                                Mark Pending
                             </button>
-                            } 
+                            }
                         </div>
 
                     </div>
@@ -98,7 +109,123 @@
         </section>
         <!-- Recent Corporate Activities feed -->
 
+        @if(shareService.userDetails()?.role == "Admin" || shareService.userDetails()?.role == "Manager"){
+        <section class="panel flex-panel">
+            <h3>Today</h3>
+            <table mat-table [dataSource]="this.shareService.AllEmpStatus()">
 
+                <!-- Name Column -->
+                <ng-container matColumnDef="Id">
+                    <th mat-header-cell *matHeaderCellDef> Id </th>
+                    <td mat-cell *matCellDef="let item">
+                        {{ item.AttendanceID }}
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="name">
+                    <th mat-header-cell *matHeaderCellDef> Name </th>
+                    <td mat-cell *matCellDef="let item">
+                        {{ item.Employee.FullName }} -
+                        {{ item.Employee.Email }}
+                    </td>
+                </ng-container>
+
+                <!-- Status Column -->
+                <ng-container matColumnDef="weight">
+                    <th mat-header-cell *matHeaderCellDef> Status </th>
+                    <td mat-cell *matCellDef="let item">
+                        {{ item.Status }}
+                    </td>
+                </ng-container>
+
+
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+            </table>
+        </section>
+        }
+
+        @if(shareService.userDetails()?.role == "Admin" || shareService.userDetails()?.role == "Manager"){
+        <section class="panel flex-panel">
+            <h3>This Week</h3>
+                <table mat-table [dataSource]="this.shareService.weekStatus()">
+
+                <!-- Name Column -->
+                <ng-container matColumnDef="date">
+                    <th mat-header-cell *matHeaderCellDef> date </th>
+                    <td mat-cell *matCellDef="let item">
+                        {{ item.date }}
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="dayName">
+                    <th mat-header-cell *matHeaderCellDef> dayName </th>
+                    <td mat-cell *matCellDef="let item">
+                        {{ item.dayName }}
+                    </td>
+                </ng-container>
+
+                <!-- Status Column -->
+                <ng-container matColumnDef="Present">
+                    <th mat-header-cell *matHeaderCellDef> Present </th>
+                    <td mat-cell *matCellDef="let item">
+                        {{ item.Present }}
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="Absent">
+                    <th mat-header-cell *matHeaderCellDef> Absent </th>
+                    <td mat-cell *matCellDef="let item">
+                        {{ item.Absent }}
+                    </td>
+                </ng-container>
+                <ng-container matColumnDef="OnLeave">
+                    <th mat-header-cell *matHeaderCellDef> OnLeave </th>
+                    <td mat-cell *matCellDef="let item">
+                        {{ item.OnLeave }}
+                    </td>
+                </ng-container>
+
+
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns2"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns2;"></tr>
+
+            </table>
+        
+            
+        </section>
+        }
     </div>
+
+
+
+
+
+
+
+    <!-- <section class="panel flex-panel">
+            <mat-card class="example-card" appearance="outlined">
+                <mat-card-header>
+                    <mat-card-subtitle>This Week</mat-card-subtitle>
+                </mat-card-header>
+                
+                <mat-card-content>
+                    
+                </mat-card-content>
+            
+            </mat-card>
+
+            <div class="actions-grid" style="margin-top: 15px;">
+                <button class="action-btn">
+                    <span class="btn-icon"></span> Present
+                </button>
+                
+            </div>
+
+
+        </section> -->
 
 </div>

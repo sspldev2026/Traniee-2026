@@ -1,0 +1,83 @@
+<div class="task-container">
+
+
+  <div class="modal-overlay">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Create Leave Request</h2>
+          
+      </div>
+
+      <form [formGroup]="taskForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <label for="Reason">Reason</label>
+          <input type="text" id="title" formControlName="Reason" placeholder="Sick Leave"
+            [class.input-error]="isFieldInvalid('Reason')">
+          @if (isFieldInvalid('Reason')) {
+          <div class="error-msg">
+            <small>Reason is required (minimum 5 characters).</small>
+          </div>
+          }
+        </div>
+
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="manager">Submit To</label>
+            <select id="manager" formControlName="manager">
+              @for (emp of this.leaveService.managers(); track $index) {
+              <option [value]='emp.UserID'>{{emp.FullName}}</option>
+              }
+            </select>
+          </div>
+
+
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="StartDate">Start Date</label>
+            <div class="calendar-input-wrapper">
+              <input type="date" id="StartDate" formControlName="StartDate"
+                [class.input-error]="isFieldInvalid('dueDate')">
+            </div>
+            @if (isFieldInvalid('StartDate')) {
+            <div class="error-msg">
+              <small>A target deadline parameters date mapping is required.</small>
+            </div>
+            }
+          </div>
+          <div class="form-group">
+            <label for="EndDate">End Date</label>
+            <div class="calendar-input-wrapper">
+              <input type="date" id="EndDate" formControlName="EndDate" [class.input-error]="isFieldInvalid('dueDate')">
+            </div>
+            @if (isFieldInvalid('EndDate')) {
+            <div class="error-msg">
+              <small>A target deadline parameters date mapping is required.</small>
+            </div>
+            }
+          </div>
+
+
+        </div>
+
+
+
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" routerLink="/dashboard">Back</button>
+          <button type="submit" class="btn-primary" [disabled]="taskForm.invalid">
+            Request
+          </button>
+        </div>
+      </form>
+
+      <div>
+        <h2>History</h2>
+        @for (req of this.leaveService.myleaveRequests(); track req.LeaveRequestsID) {
+          <li>{{req.reason}} - {{req.Status}} </li>
+        }
+      </div>
+    </div>
+  </div>
+</div>

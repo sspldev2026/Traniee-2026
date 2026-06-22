@@ -83,7 +83,6 @@
   font-size: 18px;
 }
 
-/* Stats Cards Layout */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -354,3 +353,4 @@
 .activity-tag.system { background-color: #2b3a42; color: #4fc3f7; }
 .activity-tag.project { background-color: #3a2f4c; color: var(--primary-color); }
 .activity-tag.hr { background-color: #2e3d30; color: #81c784; }
+

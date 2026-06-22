@@ -1,6 +1,6 @@
 const { testConnection } = require("../connection")
 const User = require("../module/userModel")
-const { getAllUsersWithRoles, getAllMan, getAllEmp,updateUserFields, hardDeleteEmployee } = require("../repositories/adminServices")
+const { getAllUsersWithRoles, getAllMan, getAllEmp,updateUserFields, hardDeleteEmployee, getAllLeaveRequestsForAdmin, getLeaveRequestsForManager } = require("../repositories/adminServices")
 
 async function getAllEmpCont(req,res) {
     const Employees = await getAllUsersWithRoles()
@@ -117,12 +117,31 @@ const deleteEmployeeHandler = async (req, res) => {
   console.error('Delete Exception:', error);
   return res.status(500).json({ success: false, message: 'Internal server error.' });
 }
+
 };
+
+async function getAllLeaveRequestsController(req,res) {
+    const requests = await getAllLeaveRequestsForAdmin()
+    res.status(200).json(requests)
+}
+
+async function getAllLeaveRequestsByManagerController(req,res) {
+    const {managerId} = req.body
+    const requests = await getLeaveRequestsForManager(managerId)
+    res.status(200).json(requests)
+}
+
+
+
+
 
 module.exports = {
     updateUserHandler,
     getAllEmpCont,
     getAllEmpContlow,
     getAllMngCont,
-    deleteEmployeeHandler
+    deleteEmployeeHandler,
+    getAllLeaveRequestsController,
+    getAllLeaveRequestsByManagerController,
+
 }

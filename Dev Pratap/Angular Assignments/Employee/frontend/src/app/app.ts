@@ -17,5 +17,9 @@ export class App implements OnInit{
     const token = signal(localStorage.getItem("accessToken"))
     this.shareService.assignUser(token())
     console.log(localStorage.getItem("refreshToken"))
+    if(this.shareService.userDetails() !== null){
+      this.shareService.updateAttSignal()
+    }
+    
   }
 }
